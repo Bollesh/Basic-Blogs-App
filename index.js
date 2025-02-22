@@ -9,7 +9,7 @@ const app = express()
 const dbURI = process.env.MONGO_URI
 mongoose.connect(dbURI)
     .then((result)=>{
-        app.listen(3000)
+        app.listen(process.env.PORT)
     })
     .catch((err)=>{console.log(err)})
 
