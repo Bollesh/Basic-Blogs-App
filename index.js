@@ -1,3 +1,5 @@
+const path = require('path')
+
 const express = require('express')
 const morgan = require('morgan')
 const mongoose = require('mongoose')
@@ -15,12 +17,20 @@ mongoose.connect(dbURI)
 
 
 
+app.set('views', path.join(__dirname, 'views'))
 app.set('view engine', 'ejs')
 
 //middleware and static files
 app.use(morgan('dev'))
 app.use(express.urlencoded({ extended: true }))
 app.use(express.static('public'))
+
+
+app.get('/debug', (req, res)=>{
+    console.log('Views directory:', app.get('views'));
+    console.log('Current directory:', __dirname);
+    res.send('Check logs');
+})
 
 app.get('/', (req, res)=>{
     res.redirect('/blogs')
@@ -76,7 +86,14 @@ app.delete('/blogs/:id', (req,res)=>{
 })
 
 app.use((req, res)=>{
-    res.status(404).render('404', { title: '404'});
+    console.log('404 handler triggered');
+    console.log('Attempting to render from:', app.get('views'));
+    try {
+        res.status(404).render('404', { title: '404' });
+    } catch (error) {
+        console.error('Error rendering 404:', error);
+        res.status(404).send('Page not found');
+    }
 })
 
 app.use((err, req, res, next) => {
